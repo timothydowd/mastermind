@@ -9,23 +9,32 @@ class Game
     self.game_start
   end
 
+
+
   def game_start
     self.show_board
     self.gen_code
     self.place_letters
   end
 
+
+
   def show_board
     @board.board_array.each {|row| puts row.join(" ")}
   end
+
+
 
   def gen_code
     @code = (0...8).map {(65 + rand(8)).chr}
   end
 
+
+
   def place_letters
     puts "Player, please place a letter from A to H in cell 1"
     @player.letter_choice = gets.chomp.upcase
+    puts "your choice #{@player.letter_choice}"
 
   while @player.is_letter?
     #if @letters.letters_arr.any? {|letter| @player.letter_choice != letter}
@@ -40,7 +49,7 @@ class Game
 
 
 end
-
+#----------------------------------
 
 class Board
 
@@ -51,26 +60,25 @@ class Board
   end
 
 end
-
+#--------------------------------------
 
 class Player
   attr_accessor :letter_choice
 
   def is_letter?
-    if @letters.letters_arr.any? {|letter| self.letter_choice != letter}
-      return false
+    if @letters.letters_arr.any? {|letter| self.letter_choice == letter}
+      return true
     else
-      true
+      false
     end
   end
 
-
 end
-
+#------------------------------------------
 
 class Computer
 end
-
+#---------------------------------------------
 
 class Letter
 
@@ -82,13 +90,11 @@ class Letter
     @letters_arr
   end
 
-
-
-
 end
+#-------------------------------------------------
 
 
 class ClueGiver
 end
-
+#---------------------------------------------------------
 game = Game.new
