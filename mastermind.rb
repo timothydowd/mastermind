@@ -12,19 +12,61 @@ class Game
 
 
   def game_start
-    self.show_board
-    self.gen_code
-    self.place_letters
+    self.choose_game
+    if @player.player_stance == 1
+      self.choose_code
+      @computer = Computer.new
+      @computer.letter_choice = self.gen_code
+      puts @computer.letter_choice
+
+
+    else
+
+      self.show_board
+      self.gen_code
+      self.place_letters
+    end
+  end
+
+
+  def choose_code
+    puts "Please enter a 4 letter secret code using letters A to H"
+    @player.code_choice = gets.chomp.upcase.split("")
+
+    while self.is_valid_code?(@player.code_choice) == false
+      puts "Invalid code, please enter a secret code using only letters A to H "
+      @player.code_choice = gets.chomp.upcase.split("")
+    end
+  end
+
+
+  def is_valid_code?(code_choice)
+    code_choice.each do |code_letter|
+      if @letters.letters_arr.include?(code_letter) == false
+        return false
+      end
+    end
+  end
+
+  def is_valid_letter?(letter_choice)
+    @letters.letters_arr.include?(letter_choice)
   end
 
 
   def show_board
+    puts "\n"
     @board.board_array.each {|row| puts row.join(" ")}
   end
 
+  def choose_game
+    puts "Please type 1 to be the codemaster or 2 to be the codebreaker"
+    @player.player_stance = gets.chomp.to_i
+    puts "\n"
+  end
+
+
 
   def gen_code
-
     @code = (0...4).map {(65 + rand(8)).chr}
     code_uniq = @code.uniq
 
@@ -32,7 +74,6 @@ class Game
     @code = (0...4).map {(65 + rand(8)).chr}
     code_uniq = @code.uniq
     end
-
   end
 
 
@@ -40,6 +81,7 @@ class Game
   def place_letters
     letters_placed = 0
     while letters_placed < 4
+      puts "\n"
       puts "Player, please place a letter from A to H in cell #{letters_placed + 1}"
       @player.letter_choice = gets.chomp.upcase
       until self.is_valid_letter?(@player.letter_choice)
@@ -58,9 +100,11 @@ class Game
 
   def check_status
     if @code == @board.board_array[@round_count]
-      puts "Congratulations, you cracked the code: #{@code}"
+      puts "\n"
+      puts "Congratulations, you cracked the code: #{@code.join(" ")}"
     else
       if self.game_over?
+        puts "\n"
         puts "Game Over, the secret code was #{@code}"
         exit
       else
@@ -81,9 +125,7 @@ class Game
 
 
 
-  def is_valid_letter?(letter_choice)
-    @letters.letters_arr.include?(letter_choice)
-  end
+
 
 
 
@@ -103,6 +145,7 @@ class Game
        letter_row += 1
     end
     @board.board_array[@round_count].push(clue_array.sort.join(" "))
+    puts "\n"
     self.show_board
   end
 
@@ -124,12 +167,13 @@ end
 #--------------------------------------
 
 class Player
-  attr_accessor :letter_choice
+  attr_accessor :letter_choice, :player_stance, :code_choice
 
 end
 #------------------------------------------
 
 class Computer
+  attr_accessor :letter_choice
 end
 #---------------------------------------------
 
