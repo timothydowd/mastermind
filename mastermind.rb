@@ -14,68 +14,65 @@ class Game
   def game_start
     self.choose_game
     if @player.player_stance == 1
-      self.choose_code
-      @computer = Computer.new
-      @computer.letter_choice = self.gen_code
-      puts @computer.letter_choice
-
-
+      self.computer_plays
+    elsif @player.player_stance == 2
+      self.player_plays
     else
-
-      self.show_board
-      self.gen_code
-      self.place_letters
+      puts "Invalid input"
+      self.game_start
     end
   end
 
-
-  def choose_code
-    puts "Please enter a 4 letter secret code using letters A to H"
-    @player.code_choice = gets.chomp.upcase.split("")
-
-    while self.is_valid_code?(@player.code_choice) == false
-      puts "Invalid code, please enter a secret code using only letters A to H "
-      @player.code_choice = gets.chomp.upcase.split("")
-    end
+  def computer_plays
+    self.choose_code
+    @computer = Computer.new
+    self.show_board
+    self.computer_place_letters
   end
 
+  def computer_place_letters
+    @computer.letter_choice = self.gen_code
+    @board.board_array[@round_count] = @computer.letter_choice
+    self.show_board
+    self.check_status_comp
 
-  def is_valid_code?(code_choice)
-    code_choice.each do |code_letter|
-      if @letters.letters_arr.include?(code_letter) == false
-        return false
+  end
+
+  def check_status_comp
+    if @player.code_choice == @board.board_array[@round_count]
+      puts "\n"
+      puts "Computer cracked the code: #{@player.code_choice.join(" ")}"
+    else
+      if self.game_over?
+        puts "\n"
+        puts "Computer couldn't crack the code. Game Over}"
+        exit
+      else
+        self.give_clue_computer
+        @round_count -= 1
+        self.computer_place_letters
       end
     end
   end
 
-  def is_valid_letter?(letter_choice)
-    @letters.letters_arr.include?(letter_choice)
-  end
+  def give_clue_computer
+    clue_array = []
+    letter_row = 0
+    @player.code_choice.each do |code_letter|
+       if code_letter == @board.board_array[@round_count][letter_row]
+         clue_array.unshift("CLCC")
+       elsif @board.board_array[@round_count].include?(code_letter)
+         clue_array.unshift("CLWC")
+       else
+         clue_array.unshift("X")
+       end
 
-
-  def show_board
-    puts "\n"
-    @board.board_array.each {|row| puts row.join(" ")}
-  end
-
-  def choose_game
-    puts "Please type 1 to be the codemaster or 2 to be the codebreaker"
-    @player.player_stance = gets.chomp.to_i
-    puts "\n"
-  end
-
-
-
-  def gen_code
-    @code = (0...4).map {(65 + rand(8)).chr}
-    code_uniq = @code.uniq
-
-    until code_uniq == @code
-    @code = (0...4).map {(65 + rand(8)).chr}
-    code_uniq = @code.uniq
+       letter_row += 1
     end
+    @board.board_array[@round_count].push(clue_array.sort.join(" "))
+    puts "\n"
+    self.show_board
   end
-
 
 
   def place_letters
@@ -93,6 +90,73 @@ class Game
       self.show_board
     end
     self.check_status
+  end
+
+
+  def player_plays
+    self.show_board
+    self.gen_code
+    self.place_letters
+  end
+
+
+  def choose_code
+    puts "Please enter a 4 letter secret code using letters A to H:"
+    @player.code_choice = gets.chomp.upcase.split("")
+
+    while self.is_valid_code?(@player.code_choice) == false
+      puts "Invalid code, please enter a 4 letter secret code using only A to H and without duplicates:"
+      @player.code_choice = gets.chomp.upcase.split("")
+    end
+  end
+
+
+  def is_valid_code?(code_choice)
+    code_uniq = code_choice.uniq
+    if code_uniq != code_choice
+      return false
+    elsif code_choice.length != 4
+      return false
+    else
+      code_choice.each do |code_letter|
+        if @letters.letters_arr.include?(code_letter) == false
+          return false
+        end
+      end
+    end
+  end
+
+
+  def is_valid_letter?(letter_choice)
+    @letters.letters_arr.include?(letter_choice)
+  end
+
+
+  def show_board
+    puts "\n"
+    @board.board_array.each {|row| puts row.join(" ")}
+  end
+
+
+  def choose_game
+    puts "Please type 1 to be the codemaster or 2 to be the codebreaker"
+    @player.player_stance = gets.chomp.to_i
+    puts "\n"
+  end
+
+
+
+  def gen_code
+    @code = (0...4).map {(65 + rand(8)).chr}
+    code_uniq = @code.uniq
+
+    until code_uniq == @code
+    @code = (0...4).map {(65 + rand(8)).chr}
+    code_uniq = @code.uniq
+    end
+
+    @code
+
   end
 
 
@@ -174,6 +238,9 @@ end
 
 class Computer
   attr_accessor :letter_choice
+  def initialize
+    puts "computer obj created"
+  end
 end
 #---------------------------------------------
 
