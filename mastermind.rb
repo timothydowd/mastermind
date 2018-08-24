@@ -24,7 +24,7 @@ class Game
   end
 
   def computer_plays
-    self.choose_code
+    self.player_choose_code
     @computer = Computer.new
     self.show_board
     self.computer_place_letters
@@ -58,22 +58,69 @@ class Game
   def give_clue_computer
     clue_array = []
     letter_row = 0
+    @clcc_hash = Hash.new
+    @clwc_hash = Hash.new
     @player.code_choice.each do |code_letter|
        if code_letter == @board.board_array[@round_count][letter_row]
          clue_array.unshift("CLCC")
+         @clcc_hash[letter_row] = code_letter
        elsif @board.board_array[@round_count].include?(code_letter)
          clue_array.unshift("CLWC")
+         @clwc_hash[letter_row] = code_letter
        else
          clue_array.unshift("X")
        end
-
        letter_row += 1
     end
-    @board.board_array[@round_count].push(clue_array.sort.join(" "))
+    @board.board_array[@round_count].push(clue_array.join(" "))
     puts "\n"
     self.show_board
   end
 
+
+  #def add_clcc
+  #  if @clcc_hash != nil
+    #  @clcc_hash.each{|clcc| @computer.letter_choice[clcc] = @clcc_hash[clcc]}
+
+  #  else
+  #    self.computer_place_letters
+  #  end
+
+#  end
+
+
+  def gen_code
+    @code = (0...4).map {(65 + rand(8)).chr}
+
+
+    unless @clwc_hash.nil?
+      @clwc_hash.each{|clwc, letter| @code[clwc] = letter}
+      @code.shuffle!
+    end
+
+    unless @clcc_hash.nil?
+      @clcc_hash.each{|clcc, letter| @code[clcc] = letter}
+    end
+
+
+    code_uniq = @code.uniq
+
+    until code_uniq == @code
+    @code = (0...4).map {(65 + rand(8)).chr}
+      unless @clwc_hash.nil?
+        @clwc_hash.each{|clwc, letter| @code[clwc] = letter}
+        @code.shuffle!
+      end
+
+      unless @clcc_hash.nil?
+        @clcc_hash.each{|clcc, letter| @code[clcc] = letter}
+      end
+    code_uniq = @code.uniq
+    end
+
+    @code
+
+  end
 
   def place_letters
     letters_placed = 0
@@ -100,7 +147,7 @@ class Game
   end
 
 
-  def choose_code
+  def player_choose_code
     puts "Please enter a 4 letter secret code using letters A to H:"
     @player.code_choice = gets.chomp.upcase.split("")
 
@@ -146,19 +193,6 @@ class Game
 
 
 
-  def gen_code
-    @code = (0...4).map {(65 + rand(8)).chr}
-    code_uniq = @code.uniq
-
-    until code_uniq == @code
-    @code = (0...4).map {(65 + rand(8)).chr}
-    code_uniq = @code.uniq
-    end
-
-    @code
-
-  end
-
 
 
 
@@ -181,16 +215,9 @@ class Game
 
 
 
-
   def game_over?
     @round_count == -11 ? true : false
   end
-
-
-
-
-
-
 
 
 
@@ -212,8 +239,6 @@ class Game
     puts "\n"
     self.show_board
   end
-
-
 
 
 end
