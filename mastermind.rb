@@ -60,21 +60,25 @@ class Game
     letter_row = 0
     @clcc_hash = Hash.new
     @clwc_hash = Hash.new
-    @player.code_choice.each do |code_letter|
-       if code_letter == @board.board_array[@round_count][letter_row]
-         clue_array.unshift("CLCC")
-         @clcc_hash[letter_row] = code_letter
-       elsif @board.board_array[@round_count].include?(code_letter)
-         clue_array.unshift("CLWC")
-         @clwc_hash[letter_row] = code_letter
+    #@player.code_choice.each do |code_letter|
+    @board.board_array[@round_count].each do |comp_letter|
+       #if code_letter == @board.board_array[@round_count][letter_row]
+        if comp_letter == @player.code_choice[letter_row]
+         clue_array.push("CLCC")
+         @clcc_hash[letter_row] = comp_letter
+       #elsif @board.board_array[@round_count].include?(code_letter)
+     elsif @player.code_choice.include?(comp_letter)
+         clue_array.push("CLWC")
+         @clwc_hash[letter_row] = comp_letter
        else
-         clue_array.unshift("X")
+         clue_array.push("X")
        end
        letter_row += 1
     end
     @board.board_array[@round_count].push(clue_array.join(" "))
     puts "\n"
-    self.show_board
+    #self.show_board
+    puts "clwc hash #{@clwc_hash}"
   end
 
 
@@ -92,25 +96,41 @@ class Game
   def gen_code
     @code = (0...4).map {(65 + rand(8)).chr}
 
-
     unless @clwc_hash.nil?
-      @clwc_hash.each{|clwc, letter| @code[clwc] = letter}
-      @code.shuffle!
+      @clwc_hash.each do |clwc, letter|
+        @code.each_with_index do |gen_letter, index|
+          if index != clwc
+            @code[index] = letter
+            break
+          #else
+          #  gen_letter
+          end
+        end
+      end
     end
 
     unless @clcc_hash.nil?
       @clcc_hash.each{|clcc, letter| @code[clcc] = letter}
     end
 
-
     code_uniq = @code.uniq
 
     until code_uniq == @code
     @code = (0...4).map {(65 + rand(8)).chr}
-      unless @clwc_hash.nil?
-        @clwc_hash.each{|clwc, letter| @code[clwc] = letter}
-        @code.shuffle!
+
+    unless @clwc_hash.nil?
+      @clwc_hash.each do |clwc, letter|
+        @code.each_with_index do |gen_letter, index|
+          if index != clwc
+            @code[index] = letter
+            break
+          #else
+          #  gen_letter
+          end
+        end
       end
+    end
+
 
       unless @clcc_hash.nil?
         @clcc_hash.each{|clcc, letter| @code[clcc] = letter}
@@ -121,6 +141,7 @@ class Game
     @code
 
   end
+
 
   def place_letters
     letters_placed = 0
