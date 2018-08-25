@@ -60,13 +60,10 @@ class Game
     letter_row = 0
     @clcc_hash = Hash.new
     @clwc_hash = Hash.new
-    #@player.code_choice.each do |code_letter|
     @board.board_array[@round_count].each do |comp_letter|
-       #if code_letter == @board.board_array[@round_count][letter_row]
         if comp_letter == @player.code_choice[letter_row]
          clue_array.push("CLCC")
          @clcc_hash[letter_row] = comp_letter
-       #elsif @board.board_array[@round_count].include?(code_letter)
      elsif @player.code_choice.include?(comp_letter)
          clue_array.push("CLWC")
          @clwc_hash[letter_row] = comp_letter
@@ -77,20 +74,7 @@ class Game
     end
     @board.board_array[@round_count].push(clue_array.join(" "))
     puts "\n"
-    #self.show_board
-    puts "clwc hash #{@clwc_hash}"
   end
-
-
-  #def add_clcc
-  #  if @clcc_hash != nil
-    #  @clcc_hash.each{|clcc| @computer.letter_choice[clcc] = @clcc_hash[clcc]}
-
-  #  else
-  #    self.computer_place_letters
-  #  end
-
-#  end
 
 
   def gen_code
@@ -102,8 +86,7 @@ class Game
           if index != clwc
             @code[index] = letter
             break
-          #else
-          #  gen_letter
+
           end
         end
       end
@@ -124,22 +107,17 @@ class Game
           if index != clwc
             @code[index] = letter
             break
-          #else
-          #  gen_letter
           end
         end
       end
     end
-
 
       unless @clcc_hash.nil?
         @clcc_hash.each{|clcc, letter| @code[clcc] = letter}
       end
     code_uniq = @code.uniq
     end
-
     @code
-
   end
 
 
@@ -160,8 +138,16 @@ class Game
     self.check_status
   end
 
+  def rules
+    puts "The aim of mastermind is to guess the secret code by placing the correct letter in the correct column."
+    puts "Along the way you will be given hints as to how close your guess is to cracking the code."
+    puts "CLCW stand for correct letter in correct column, CLCC stands for correct letter in correct column.  X's mean the letter does not exist in the secret code."
+    puts "\n"
+  end
+
 
   def player_plays
+    self.rules
     self.show_board
     self.gen_code
     self.place_letters
@@ -211,9 +197,6 @@ class Game
     @player.player_stance = gets.chomp.to_i
     puts "\n"
   end
-
-
-
 
 
 
